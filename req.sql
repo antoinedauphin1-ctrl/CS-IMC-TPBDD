@@ -75,3 +75,18 @@ ORDER BY COUNT(DISTINCT a.idArtist) DESC;
 -- On ordonne par le nombre d'acteurs distincts en ordre décroissant
 
 --Question 8:
+SELECT a.primaryName, f.primaryTitle
+FROM dbo.tArtist AS a
+JOIN dbo.tJob AS j ON a.idArtist = j.idArtist
+JOIN dbo.tFilm AS f ON j.idFilm = f.idFilm
+WHERE (SELECT COUNT(DISTINCT category)
+       FROM dbo.tJob AS j2
+       WHERE j2.idFilm = f.idFilm AND j2.idArtist = a.idArtist
+      ) > 1
+GROUP BY a.primaryName, f.primaryTitle;
+-- On sélectionne le nom des artistes et le titre principal des films
+-- On utilise des jointures entre la table des artistes, la table des jobs et la table des films pour lier les artistes aux films
+-- On utilise une sous-requête pour compter le nombre de rôles distincts pour chaque artiste dans chaque film
+-- On filtre les artistes ayant plus d'un rôle dans un même film en utilisant la clause WHERE avec la sous-requête
+-- On groupe par nom d'artiste et titre de film pour obtenir les paires artiste-film correspondantes
+
