@@ -60,7 +60,7 @@ HAVING COUNT(DISTINCT j.category) > 1;
 
 --Question 7:
 
-SELECT TOP 1 WITH TIES f.primaryTitle
+SELECT TOP 1 WITH TIES f.primaryTitle, COUNT(DISTINCT a.idArtist) AS nb_acteurs
 FROM dbo.tFilm AS f
 JOIN dbo.tJob AS j ON f.idFilm = j.idFilm
 JOIN dbo.tArtist AS a ON j.idArtist = a.idArtist
