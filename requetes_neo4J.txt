@@ -1,0 +1,92 @@
+Q1:
+CREATE(Antoine_Dauphin: Artist{primaryName: 'Antoine Dauphin', birthYear:2001})
+On crée un Artist avec comme primaryName mon nom et comme année de naissance la mienne.
+
+Pour vérifier (avec screenshot dans le repo):
+MATCH (n:Artist) WHERE n.primaryName='Antoine Dauphin' RETURN n;
+
+
+Q2:
+CREATE (Histoire20:Film{primaryTitle: "L'Histoire de mon 20 au cours Infrastructure de Données", startYear:2026, runtimeMinutes: 67})
+On crée un Film avec comme primaryTitle le titre demandé
+
+Pour vérifier (screenshot dans le repo)
+MATCH (n:Film) WHERE n.primaryTitle="L'Histoire de mon 20 au cours Infrastructure de Données" RETURN n;
+
+
+Q3:
+MATCH (a:Artist), (f:Film)
+WHERE (a.primaryName='Antoine Dauphin') AND f.primaryTitle="L'Histoire de mon 20 au cours Infrastructure de Données"
+CREATE (a)-[r:acted_in]->(f)
+return type(r)
+
+On récupère l'Artist Antoine Dauphin et le Film L'Histoire de mon 20 au cours Infrastructure de Données et on crée la relation entre les deux que l'on choisit comme étant acted_in 
+car ici Antoine Dauphin doit être acteur du film
+
+
+
+Q4:
+CREATE(lvovan:Artist{primaryName:'Luc Vo Van'})
+CREATE(francesca_bugiotti:Artist{primaryName:'Francesca Bugiotti'})
+On crée les Artist pour les rajouter en réalisateurs ensuite
+
+
+MATCH (a:Artist), (f:Film)
+WHERE (a.primaryName='Luc Vo Van' OR a.primaryName = 'Francesca Bugiotti') AND f.primaryTitle="L'Histoire de mon 20 au cours Infrastructure de Données"
+CREATE (a)-[r:directed]->(f)
+return type(r)
+On récupère les 2 Artist professeurs et on leur ajoute la relation directed pour les rendre réalisateurs du film L'Histoire de mon 20 au cours Infrastructure de Données.
+
+-> Screenshot dans le repo
+
+Q5:
+MATCH (a:Artist)
+WHERE a.primaryName='Nicole Kidman'
+RETURN a, a.birthYear
+
+On regarde l'Artist Nicole Kidman et on retourne le noeud ainsi que son année de naissance.
+
+-> Screenshot dans le repo
+
+
+Q6:
+MATCH (f:Film)
+RETURN f
+
+On sélection les films et on les renvoit tous, il faut changer des paramètres pour réussir à afficher tous les films, sinon on est limités.
+
+-> Screenshot dans le repo
+
+
+Q7:
+
+MATCH (a:Artist)
+WHERE a.birthYear=1963
+RETURN COLLECT(a.primaryName) AS Noms, count(a) AS NombreTotal
+
+On prend les Artist qui ont pour birthYear 1963 et on utilise les fonctions COLLECT() et count() pour renvoyer la liste des Artist concernés 
+sous le nom Noms et leur nombre sous le nom NombreTotal
+
+-> Screenshot dans le repo
+
+Q8:
+MATCH (a:Artist)
+WHERE COUNT {
+  MATCH (a)-[:acted_in]->(f:Film)
+  RETURN DISTINCT f
+} >1
+RETURN a.primaryName as Name
+
+On utilise une subquery ici pour ne prendre que les artistes qui ont au moins été acteurs dans 2 films différents.
+
+
+Q9:
+MATCH (a:Artist)
+WHERE COUNT {
+  MATCH (a)-[r]->()
+  RETURN DISTINCT type(r)
+} >1
+RETURN a.primaryName as Name
+
+Ici dans la subquery on veut compter les types de relations différentes pour chaque artiste donc on va utiliser DISTINCT type(r), sachant que DISTINCT r ne fonctionne pas car 
+chaque relation a un id interne unique et donc elles sont toutes distinctes. 
