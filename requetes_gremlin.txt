@@ -1,0 +1,57 @@
+Q1
+g.addV('Artist').property('primaryName', 'Antoine Dauphin').property('birthYear', 2001)
+
+On crée un Artist avec comme primaryName mon nom et comme année de naissance la mienne. Pour vérifier, on filtre les sommets avec has() sur mon nom.
+
+Q2
+g.addV('Film').property('primaryTitle', "L'Histoire de mon 20 au cours Infrastructure de Données").property('startYear', 2026).property('runtimeMinutes', 67)
+
+On crée un Film avec comme primaryTitle le titre demandé et les propriétés de base comme l'année et la durée.
+
+Q3
+g.V().has('Artist', 'primaryName', 'Antoine Dauphin').as('a').V().has('Film', 'primaryTitle', "L'Histoire de mon 20 au cours Infrastructure de Données").as('f').addE('acted_in').from('a').to('f')
+
+On récupère l'Artist Antoine Dauphin et le Film L'Histoire de mon 20 au cours Infrastructure de Données et on crée la relation acted_in entre les deux car ici Antoine Dauphin doit être acteur du film.
+
+Q4
+
+g.addV('Artist').property('primaryName', 'Luc Vo Van').iterate()
+g.addV('Artist').property('primaryName', 'Francesca Bugiotti').iterate()
+g.V().has('Artist', 'primaryName', within('Luc Vo Van', 'Francesca Bugiotti')).as('p').V().has('Film', 'primaryTitle', "L'Histoire de mon 20 au cours Infrastructure de Données").as('f').addE('directed').from('p').to('f')
+
+On crée d'abord les sommets pour les deux professeurs, puis on les récupère pour leur ajouter la relation directed vers le film afin de les désigner comme réalisateurs.
+
+Q5
+g.V().has('Artist', 'primaryName', 'Nicole Kidman').valueMap('primaryName', 'birthYear')
+
+On regarde l'Artist Nicole Kidman et on utilise valueMap pour retourner le nœud ainsi que son année de naissance de manière lisible.
+
+Q6
+g.V().hasLabel('Film')
+
+On sélectionne tous les nœuds de label Film pour les afficher tous d'un coup.
+
+Q7
+g.V().has('Artist', 'birthYear', 1963).values('primaryName').fold().project('Noms', 'NombreTotal').by().by(unfold().count())
+
+On prend les Artist qui ont pour birthYear 1963 et on utilise fold() et project() pour renvoyer la liste des noms sous "Noms" et leur décompte total sous "NombreTotal".
+
+Q8
+g.V().hasLabel('Artist').where(out('acted_in').dedup().count().is(gt(1))).values('primaryName')
+
+On utilise un filtre where pour ne garder que les artistes qui, en suivant la relation acted_in vers des films distincts, ont un compte supérieur à 1.
+
+Q9
+g.V().hasLabel('Artist').where(outE().label().dedup().count().is(gt(1))).values('primaryName')
+
+On compte les types (labels) de relations différentes sortant de chaque artiste avec dedup() et count() pour identifier ceux qui ont eu plusieurs rôles différents durant leur carrière.
+
+Q10
+g.V().hasLabel('Artist').as('a').outE().as('r').inV().hasLabel('Film').as('f').select('a','f').group().by().by(select('r').label().dedup().count()).unfold().filter(select(values).is(gt(1))).project('Names', 'Titles').by(select(keys).select('a').values('primaryName')).by(select(keys).select('f').values('primaryTitle'))
+
+On groupe les couples Artiste/Film pour compter les types de responsabilités uniques par film. On filtre ensuite pour ne renvoyer que les noms des artistes et les titres des films où ce compte est supérieur à 1.
+
+Q11
+g.V().hasLabel('Film').as('f').project('film', 'count').by().by(in('acted_in').count()).fold().as('all').unfold().select('count').max().as('maxScore').select('all').unfold().as('item').where('item', eq('maxScore')).by('count').by().select('item').select('film').values('primaryTitle')
+
+On calcule le nombre d'acteurs par film, on identifie le score maximum dans la liste, puis on filtre pour ne renvoyer que le ou les titres des films qui atteignent ce maximum, ce qui gère les cas d'égalité.

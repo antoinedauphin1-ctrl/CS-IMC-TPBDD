@@ -79,6 +79,7 @@ RETURN a.primaryName as Name
 
 On utilise une subquery ici pour ne prendre que les artistes qui ont au moins été acteurs dans 2 films différents.
 
+-> Screenshot dans le repo
 
 Q9:
 MATCH (a:Artist)
@@ -90,3 +91,33 @@ RETURN a.primaryName as Name
 
 Ici dans la subquery on veut compter les types de relations différentes pour chaque artiste donc on va utiliser DISTINCT type(r), sachant que DISTINCT r ne fonctionne pas car 
 chaque relation a un id interne unique et donc elles sont toutes distinctes. 
+
+-> Screenshot dans le repo
+
+Q10:
+MATCH (a:Artist)-[r]->(f:Film)
+WITH a, f, count(DISTINCT type(r)) AS nbResponsabilites
+WHERE nbResponsabilites > 1
+RETURN a.primaryName AS Names, f.primaryTitle AS Titles
+
+Ici on cherche d'abord les relations pour ne pas avoir à faire MATCH (a:Artist), (f:Film) et éviter le produit cartésien.
+Ensuite on compte les 3-uplets artistes, films, relations pour savoir pour chaque artiste s'il ou elle a eu plusieurs responsabilités dans le même film.
+On peut ensuite renvoyer les noms des artistes avec les films dans lesquels ils ou elles ont plusieurs responsabilités.
+
+-> Screenshot dans le repo
+
+Q11:
+MATCH (a:Artist)-[r:acted_in]->(f:Film)
+WITH f, count(DISTINCT a) AS NbActors
+WITH collect({film: f, score: NbActors}) AS tousLesResultats, max(NbActors) AS ScoreMax
+UNWIND tousLesResultats AS resultat
+WITH resultat WHERE resultat.score=ScoreMax
+RETURN resultat.film.primaryTitle AS FilmName
+
+On regarde d'abord les relations acted_in par souci de performance et ne pas ouvrir de données inutiles.
+Ensuite on compte pour chaque film le nombre d'acteurs 
+Puis on crée une liste avec les noms des films et le nombre d'acteurs associés, ainsi qu'une variable pour le nombre max d'acteurs.
+On va ensuite chercher avec UNWIND et la condition WHERE le ou les films dans la liste qui ont un nombre d'acteurs égal au nombre d'acteurs max.
+Et on renvoie les noms de ces films.
+
+-> Screenshot dans le repo
